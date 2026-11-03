@@ -1,0 +1,282 @@
+/* Sito Dott.ssa Elisa Cane
+   Idea: la pagina "scende" nel lago. Si parte dal cielo chiaro, si attraversa
+   la linea d'orizzonte e i toni si fanno via via più profondi fino ai contatti. */
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/fonts/hanken-grotesk.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --cielo: #f3f5f2;
+  --t1: #e8eeeb;
+  --t2: #dee8e4;
+  --t3: #d3e0db;
+  --t4: #c7d8d2;
+  --t5: #bbcfc8;
+  --fondo: #24433f;
+  --fondo-2: #1b3431;
+  --inchiostro: #1c2a28;
+  --tenue: #445753;
+  --lago: #2f5653;
+  --lago-scuro: #234340;
+  --linea: rgba(28, 42, 40, 0.16);
+  --chiaro: #eef4f1;
+  --chiaro-tenue: #b9cdc6;
+
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --wrap: 1180px;
+  --gutter: clamp(20px, 5vw, 48px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+body {
+  margin: 0;
+  background: var(--cielo);
+  color: var(--inchiostro);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  margin: 0;
+  font-optical-sizing: auto;
+}
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+
+:focus-visible { outline: 2px solid var(--lago); outline-offset: 3px; border-radius: 2px; }
+.contatti :focus-visible { outline-color: var(--chiaro); }
+
+.salta {
+  position: absolute; left: 12px; top: -60px; z-index: 50;
+  background: var(--inchiostro); color: #fff; padding: 10px 14px; text-decoration: none;
+}
+.salta:focus { top: 12px; }
+
+/* ---------- Testata ---------- */
+.testata {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(243, 245, 242, 0.92);
+  backdrop-filter: saturate(1.2) blur(10px);
+  -webkit-backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s;
+}
+.testata.staccata { border-bottom-color: var(--linea); }
+.testata-in { display: flex; align-items: center; gap: 32px; min-height: 72px; }
+.marchio {
+  font-family: var(--serif); font-size: 1.3rem; text-decoration: none; line-height: 1.1;
+  display: flex; flex-direction: column;
+}
+.marchio span { font-family: var(--sans); font-size: .8rem; color: var(--tenue); letter-spacing: .01em; }
+.testata nav { margin-left: auto; }
+.testata nav ul { list-style: none; display: flex; gap: 28px; margin: 0; padding: 0; }
+.testata nav a { text-decoration: none; font-size: .95rem; color: var(--tenue); }
+.testata nav a:hover { color: var(--inchiostro); text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Bottoni ---------- */
+.bottone {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 24px;
+  background: var(--lago); color: #fff;
+  font: 500 1rem/1 var(--sans);
+  text-decoration: none; border: 1px solid var(--lago); border-radius: 3px;
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+.bottone:hover { background: var(--lago-scuro); border-color: var(--lago-scuro); }
+.bottone-secondario { background: transparent; color: var(--lago); }
+.bottone-secondario:hover { background: var(--lago); color: #fff; }
+.bottone-piccolo { min-height: 40px; padding: 0 18px; font-size: .95rem; }
+.bottone-chiaro { background: var(--chiaro); color: var(--fondo); border-color: var(--chiaro); }
+.bottone-chiaro:hover { background: #fff; border-color: #fff; color: var(--fondo); }
+.bottone[disabled] { opacity: .6; cursor: wait; }
+
+.link { color: var(--lago); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.link:hover { text-decoration-thickness: 2px; }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; padding: clamp(40px, 7vw, 96px) 0 0; }
+.hero-in {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 88px); align-items: end;
+}
+.hero-testo { padding-bottom: clamp(48px, 7vw, 96px); }
+.sopratitolo { color: var(--tenue); font-size: 1rem; margin-bottom: 20px; }
+.hero h1 {
+  font-size: clamp(2.6rem, 6.2vw, 5rem);
+  font-weight: 330;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  max-width: 11ch;
+  margin-bottom: 28px;
+}
+.hero-intro { font-size: 1.15rem; max-width: 34em; color: var(--tenue); margin-bottom: 32px; }
+.azioni { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+.albo { font-size: .9rem; color: var(--tenue); }
+
+.hero-foto { margin: 0; position: relative; z-index: 1; }
+.hero-foto img {
+  width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 20%;
+  border-radius: 4px 4px 0 0;
+  background: var(--t2);
+}
+
+.orizzonte {
+  display: block; width: 100%; height: 60px; margin-top: -30px;
+  position: relative; z-index: 2;
+}
+.orizzonte path {
+  fill: none; stroke: var(--lago); stroke-width: 1.5; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1600; stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .orizzonte path { animation: traccia 2.2s cubic-bezier(.6, 0, .2, 1) .2s both; }
+  @keyframes traccia { from { stroke-dashoffset: 1600; } to { stroke-dashoffset: 0; } }
+}
+
+/* ---------- Sezioni: la discesa ---------- */
+.sezione { padding: clamp(64px, 9vw, 120px) 0; }
+.servizi { background: linear-gradient(var(--cielo), var(--t1)); padding-top: clamp(40px, 6vw, 72px); }
+.passi   { background: linear-gradient(var(--t1), var(--t2)); }
+.chisono { background: linear-gradient(var(--t2), var(--t3)); }
+.sedi    { background: linear-gradient(var(--t3), var(--t4)); }
+.domande { background: linear-gradient(var(--t4), var(--t5)); padding-bottom: clamp(96px, 12vw, 160px); }
+
+.sezione h2 { font-size: clamp(2rem, 3.8vw, 3rem); }
+.sezione-testa { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: baseline; margin-bottom: clamp(36px, 5vw, 64px); }
+.sezione-testa p { color: var(--tenue); font-size: 1.1rem; max-width: 36em; }
+
+.due-col { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; }
+
+/* Aree di intervento */
+.aree { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(32px, 6vw, 88px); }
+.aree li { border-top: 1px solid var(--linea); padding: 28px 0 36px; }
+.aree h3 { font-size: 1.6rem; margin-bottom: 10px; }
+.aree p { color: var(--tenue); max-width: 30em; }
+
+/* Come iniziare */
+.sequenza { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); }
+.sequenza li { position: relative; }
+.passo-n {
+  display: block; font-family: var(--serif); font-weight: 300;
+  font-size: 4rem; line-height: 1; color: var(--lago); margin-bottom: 16px;
+}
+.sequenza h3 { font-size: 1.4rem; margin-bottom: 8px; }
+.sequenza p { color: var(--tenue); }
+
+/* Chi sono */
+.testo-lungo { font-family: var(--serif); font-size: clamp(1.2rem, 1.8vw, 1.45rem); line-height: 1.55; max-width: 32em; }
+.testo-lungo p { margin-bottom: .9em; }
+
+/* Sedi */
+.elenco-sedi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 6vw, 88px); }
+.sede { border-top: 1px solid var(--linea); padding-top: 28px; }
+.sede h3 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin-bottom: 6px; }
+.sede-struttura { font-weight: 600; margin-bottom: 4px; }
+.orari { margin: 20px 0 22px; }
+.orari div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--linea); max-width: 28em; }
+.orari dt { color: var(--tenue); }
+.orari dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* Domande */
+.faq details { border-top: 1px solid var(--linea); }
+.faq details:last-child { border-bottom: 1px solid var(--linea); }
+.faq summary {
+  list-style: none; cursor: pointer; padding: 20px 40px 20px 0; position: relative;
+  font-family: var(--serif); font-size: 1.3rem; line-height: 1.3;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px;
+  border-right: 1.5px solid var(--lago); border-bottom: 1.5px solid var(--lago);
+  transform: translateY(-70%) rotate(45deg); transition: transform .2s;
+}
+.faq details[open] summary::after { transform: translateY(-30%) rotate(225deg); }
+.risposta { padding: 0 40px 24px 0; color: var(--tenue); max-width: 36em; }
+
+/* ---------- Contatti: il fondo ---------- */
+.contatti { position: relative; background: var(--fondo); color: var(--chiaro); padding: clamp(48px, 7vw, 96px) 0 clamp(64px, 9vw, 120px); }
+.fondale { position: absolute; left: 0; right: 0; top: -79px; width: 100%; height: 80px; display: block; }
+.fondale path { fill: var(--fondo); }
+.contatti-in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 6vw, 88px); }
+.contatti h2 { font-size: clamp(2.2rem, 4.2vw, 3.4rem); margin-bottom: 20px; }
+.contatti-testo > p { color: var(--chiaro-tenue); max-width: 30em; }
+.recapiti { list-style: none; padding: 0; margin: 32px 0 0; }
+.recapiti li { display: flex; flex-direction: column; padding: 14px 0; border-top: 1px solid rgba(238, 244, 241, .18); }
+.recapiti span { font-size: .85rem; color: var(--chiaro-tenue); }
+.recapiti a { font-size: 1.15rem; text-underline-offset: 4px; }
+
+.modulo { display: grid; gap: 18px; align-content: start; }
+.riga { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.modulo label { display: grid; gap: 6px; font-size: .95rem; color: var(--chiaro); }
+.modulo input, .modulo textarea {
+  font: inherit; color: var(--chiaro);
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(238, 244, 241, .32); border-radius: 3px;
+  padding: 12px 14px; min-height: 48px;
+}
+.modulo textarea { resize: vertical; }
+.modulo input::placeholder, .modulo textarea::placeholder { color: rgba(238, 244, 241, .55); }
+.modulo input:focus, .modulo textarea:focus { outline: 2px solid var(--chiaro); outline-offset: 1px; border-color: transparent; }
+.modulo [aria-invalid="true"] { border-color: #f2b8a8; }
+.modulo .consenso { display: flex; gap: 10px; align-items: flex-start; color: var(--chiaro-tenue); font-size: .9rem; }
+.modulo .consenso input { min-height: 0; width: 18px; height: 18px; margin-top: 3px; flex: none; accent-color: var(--chiaro); }
+.modulo .bottone { justify-self: start; }
+.nascosto { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.esito { min-height: 1.6em; font-size: .95rem; }
+.esito.ok { color: #cfe8d9; }
+.esito.errore { color: #f6c6b8; }
+
+/* ---------- Piede ---------- */
+.piede { background: var(--fondo-2); color: var(--chiaro-tenue); font-size: .9rem; padding: 36px 0; }
+.piede-in { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.piede p:last-child { text-align: right; }
+
+/* ---------- Pagina privacy ---------- */
+.pagina-semplice { background: var(--cielo); }
+.testo-pagina { max-width: 760px; padding-top: 64px; padding-bottom: 96px; }
+.testo-pagina h1 { font-size: clamp(2.2rem, 4vw, 3rem); margin-bottom: 32px; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 900px) {
+  .testata nav { display: none; }
+  .testata-in { justify-content: space-between; min-height: 64px; }
+  .hero-in { grid-template-columns: 1fr; }
+  .hero-testo { padding-bottom: 8px; }
+  .hero-foto { max-width: 420px; }
+  .sezione-testa, .due-col, .contatti-in { grid-template-columns: 1fr; gap: 16px; }
+  .due-col h2 { margin-bottom: 16px; }
+  .sequenza { grid-template-columns: 1fr; }
+  .elenco-sedi { grid-template-columns: 1fr; }
+  .contatti-in { gap: 40px; }
+}
+@media (max-width: 640px) {
+  body { font-size: 1rem; }
+  .aree { grid-template-columns: 1fr; }
+  .riga { grid-template-columns: 1fr; }
+  .marchio { font-size: 1.1rem; }
+  .passo-n { font-size: 3rem; }
+  .piede p:last-child { text-align: left; }
+}

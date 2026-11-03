@@ -1,0 +1,16 @@
+{
+  "name": "elisacane",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-20",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    { "binding": "CONTENT", "id": "06b5143b0c0d4d9b8dbbf5992ceba9a4" }
+  ],
+  "routes": [
+    { "pattern": "elisacane.tamabase.app", "custom_domain": true }
+  ],
+  "observability": { "enabled": true }
+}

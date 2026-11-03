@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Area riservata</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin/admin.css?v=1">
+</head>
+<body>
+
+<div id="accesso" class="accesso" hidden>
+  <form id="form-accesso" class="accesso-box">
+    <h1>Area riservata</h1>
+    <p>Da qui modifichi i testi, gli orari e i contatti del sito e leggi le richieste ricevute.</p>
+    <label>Password
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn" type="submit">Entra</button>
+    <p class="msg" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" class="app" hidden>
+  <header class="barra">
+    <strong class="barra-titolo">Il tuo sito</strong>
+    <span id="stato" class="stato" role="status" aria-live="polite"></span>
+    <div class="barra-azioni">
+      <a class="btn btn-leggero" href="/" target="_blank" rel="noopener">Vedi il sito</a>
+      <button class="btn" id="salva" type="button" disabled>Salva modifiche</button>
+      <button class="btn btn-leggero" id="esci" type="button">Esci</button>
+    </div>
+  </header>
+  <div class="corpo">
+    <nav class="menu" id="menu" aria-label="Sezioni del pannello"></nav>
+    <main class="editor" id="editor"></main>
+  </div>
+</div>
+
+<script src="/admin/admin.js?v=1"></script>
+</body>
+</html>
