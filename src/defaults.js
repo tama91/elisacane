@@ -126,6 +126,6 @@ export const DEFAULT_CONTENT = {
   },
   privacy: {
     testo:
-      "Titolare del trattamento: Dott.ssa Elisa Cane, [indirizzo], [email].\n\nI dati inviati con il modulo di contatto (nome, cognome, telefono, email e motivo della richiesta) sono usati solo per ricontattarti e fissare un appuntamento. Non vengono ceduti a terzi.\n\nLe richieste vengono cancellate automaticamente dopo 180 giorni.\n\nPuoi chiedere in qualsiasi momento l'accesso, la correzione o la cancellazione dei tuoi dati scrivendo a [email].\n\n[Testo da completare e verificare con un consulente privacy.]",
+      "Titolare del trattamento: Dott.ssa Elisa Cane, [indirizzo], [email].\n\nI dati inviati con il modulo di contatto (nome, cognome, telefono, email e motivo della richiesta) sono usati solo per ricontattarti e fissare un appuntamento. Non vengono ceduti a terzi.\n\nLe richieste vengono cancellate automaticamente dopo 180 giorni.\n\nCookie: questo sito non usa cookie di profilazione né strumenti di statistica o di terze parti. L'unico cookie è tecnico e serve solo per l'accesso all'area riservata della titolare: per questo non è richiesto il consenso.\n\nPuoi chiedere in qualsiasi momento l'accesso, la correzione o la cancellazione dei tuoi dati scrivendo a [email].\n\n[Testo da completare e verificare con un consulente privacy.]",
   },
 };
