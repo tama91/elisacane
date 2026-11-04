@@ -12,5 +12,7 @@
   "routes": [
     { "pattern": "elisacane.tamabase.app", "custom_domain": true }
   ],
+  // Non cancellare le variabili impostate dal pannello Cloudflare a ogni deploy
+  "keep_vars": true,
   "observability": { "enabled": true }
 }
