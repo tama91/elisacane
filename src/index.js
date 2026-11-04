@@ -72,6 +72,19 @@ function unisci(base, sopra) {
   return sopra === undefined || sopra === null ? base : sopra;
 }
 
+function differenze(base, dati) {
+  if (base === null || typeof base !== "object" || Array.isArray(base)) {
+    return JSON.stringify(base) === JSON.stringify(dati) ? undefined : dati;
+  }
+  const out = {};
+  for (const k of Object.keys(base)) {
+    if (!dati || !(k in dati)) continue;
+    const d = differenze(base[k], dati[k]);
+    if (d !== undefined) out[k] = d;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 async function servitoFoto(env) {
   const { value, metadata } = await env.CONTENT.getWithMetadata(KEY_FOTO, "arrayBuffer");
   if (!value) return new Response("Nessuna foto", { status: 404 });
@@ -106,7 +119,9 @@ async function api(request, env, path) {
     const dati = await request.json().catch(() => null);
     if (!dati || typeof dati !== "object") return json({ errore: "Dati non validi" }, 400);
     const pulito = unisci(DEFAULT_CONTENT, dati);
-    await env.CONTENT.put(KEY_CONTENT, JSON.stringify(pulito));
+    // Si salva solo ciò che è stato cambiato: i campi rimasti uguali ai testi
+    // iniziali seguono eventuali aggiornamenti futuri del sito.
+    await env.CONTENT.put(KEY_CONTENT, JSON.stringify(differenze(DEFAULT_CONTENT, pulito) || {}));
     return json({ ok: true });
   }
   if (path === "/api/foto" && m === "POST") {

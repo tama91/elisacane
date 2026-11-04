@@ -337,6 +337,10 @@ p:last-child { margin-bottom: 0; }
 .pagina-semplice { background: var(--cielo); }
 .testo-pagina { max-width: 760px; padding-top: 64px; padding-bottom: 96px; }
 .testo-pagina h1 { font-size: clamp(2.2rem, 4vw, 3rem); margin-bottom: 32px; }
+.testo-pagina h2 { font-size: 1.6rem; margin: 44px 0 14px; }
+.testo-pagina ul { margin: 0 0 1em; padding-left: 1.2em; }
+.testo-pagina li { margin-bottom: 6px; }
+.testo-pagina p, .testo-pagina li { max-width: 40em; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 900px) {

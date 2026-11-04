@@ -67,7 +67,7 @@ ${noindex ? '<meta name="robots" content="noindex, nofollow">' : ""}
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css?v=2">
+<link rel="stylesheet" href="/assets/site.css?v=3">
 </head>`;
 }
 
@@ -296,7 +296,7 @@ ${
         <textarea name="motivo" rows="4" required placeholder="Bastano poche righe."></textarea>
       </label>
       <label class="nascosto" aria-hidden="true">Lascia vuoto<input name="sito" tabindex="-1" autocomplete="off"></label>
-      <label class="consenso"><input type="checkbox" name="privacy" required><span>Ho letto l'<a href="/privacy" target="_blank">informativa privacy</a> e acconsento al trattamento dei dati.</span></label>
+      <label class="consenso"><input type="checkbox" name="privacy" required><span>Ho letto l'<a href="/privacy" target="_blank">informativa privacy</a> e acconsento al trattamento dei miei dati, compresi quelli sulla salute che eventualmente indico nel messaggio.</span></label>
       <button class="bottone bottone-chiaro" type="submit">Invia la richiesta</button>
       <p class="esito" role="status" aria-live="polite"></p>
     </form>
@@ -311,13 +311,32 @@ ${piede(c)}
 </html>`;
 }
 
+// Testo con titoli ("## ") ed elenchi ("- "), per la pagina privacy
+function testoRicco(testo) {
+  return String(testo ?? "")
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean)
+    .map((b) => {
+      if (b.startsWith("## ")) return `<h2>${esc(b.slice(3))}</h2>`;
+      const righe = b.split("\n");
+      const voci = righe.filter((r) => r.trim().startsWith("- "));
+      if (voci.length && voci.length === righe.length - (righe[0].trim().startsWith("- ") ? 0 : 1)) {
+        const intro = righe[0].trim().startsWith("- ") ? "" : `<p>${esc(righe[0])}</p>`;
+        return intro + `<ul>${voci.map((r) => `<li>${esc(r.trim().slice(2))}</li>`).join("")}</ul>`;
+      }
+      return `<p>${esc(b).replace(/\n/g, "<br>")}</p>`;
+    })
+    .join("");
+}
+
 export function renderPrivacy(c, { noindex = false } = {}) {
   return `${testa(c, { titolo: "Privacy – " + c.profilo.nome, descrizione: "Informativa privacy", noindex })}
 <body class="pagina-semplice">
 ${intestazione(c, false)}
 <main class="wrap testo-pagina">
   <h1>Informativa privacy</h1>
-  ${paragrafi(c.privacy.testo)}
+  ${testoRicco(c.privacy.informativa)}
   <p><a class="link" href="/">Torna al sito</a></p>
 </main>
 ${piede(c)}

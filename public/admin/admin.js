@@ -108,7 +108,7 @@ const SEZIONI = [
   },
   {
     chiave: "privacy", titolo: "Informativa privacy",
-    campi: [ { k: "testo", label: "Testo", tipo: "testo", righe: 14, aiuto: "Lascia una riga vuota per iniziare un nuovo paragrafo." } ],
+    campi: [ { k: "informativa", label: "Testo", tipo: "testo", righe: 28, aiuto: "Riga vuota = nuovo paragrafo. Inizia una riga con ## per un titolo, con - per una voce di elenco." } ],
   },
 ];
 
