@@ -28,6 +28,27 @@ const waNumero = (s) => {
 const mappa = (indirizzo) =>
   "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(indirizzo);
 
+// Onda periodica (periodo 720) larga 2880: si fa scorrere di 720 per un loop continuo
+function onda(y, amp) {
+  let d = `M0 ${y}`;
+  for (let i = 0; i < 8; i++) {
+    const x = i * 360, s = i % 2 === 0 ? -1 : 1;
+    d += ` C ${x + 120} ${y + s * amp}, ${x + 240} ${y + s * amp}, ${x + 360} ${y}`;
+  }
+  return d;
+}
+
+function instagram(c) {
+  const v = String(c.contatti.instagram ?? "").trim();
+  if (!v) return null;
+  const m = v.match(/instagram\.com\/([^/?#]+)/i);
+  const nome = (m ? m[1] : v).replace(/^@/, "");
+  if (!/^[\w.]+$/.test(nome)) return null;
+  return { url: `https://www.instagram.com/${nome}/`, nome: "@" + nome };
+}
+
+const icoInstagram = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" class="pieno"/></svg>`;
+
 function testa(c, { titolo, descrizione, path, noindex }) {
   return `<!doctype html>
 <html lang="it">
@@ -42,10 +63,11 @@ ${noindex ? '<meta name="robots" content="noindex, nofollow">' : ""}
 <meta property="og:description" content="${esc(descrizione)}">
 <meta property="og:locale" content="it_IT">
 <meta name="theme-color" content="#f3f5f2">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css?v=1">
+<link rel="stylesheet" href="/assets/site.css?v=2">
 </head>`;
 }
 
@@ -69,12 +91,13 @@ function intestazione(c, home = true) {
 
 function piede(c) {
   const anno = new Date().getFullYear();
+  const ig = instagram(c);
   return `<footer class="piede">
   <div class="wrap piede-in">
     <p>${esc(c.profilo.nome)} · ${esc(c.profilo.professione)}<br>${esc(c.profilo.albo)}${
       c.footer.piva ? `<br>P. IVA ${esc(c.footer.piva)}` : ""
     }</p>
-    <p><a href="/privacy">Privacy</a><br>© ${anno}</p>
+    <p>${ig ? `<a href="${esc(ig.url)}" target="_blank" rel="noopener">Instagram</a><br>` : ""}<a href="/privacy">Privacy</a><br>© ${anno}</p>
   </div>
 </footer>`;
 }
@@ -85,20 +108,20 @@ export function renderHome(c, { noindex = false } = {}) {
 
   const servizi = c.servizi.voci
     .map(
-      (v) => `<li><h3>${esc(v.titolo)}</h3><p>${esc(v.testo)}</p></li>`
+      (v, i) => `<li data-rivela style="--i:${i % 2}"><h3>${esc(v.titolo)}</h3><p>${esc(v.testo)}</p></li>`
     )
     .join("");
 
   const passi = c.passi.voci
     .map(
       (v, i) =>
-        `<li><span class="passo-n" aria-hidden="true">${i + 1}</span><h3>${esc(v.titolo)}</h3><p>${esc(v.testo)}</p></li>`
+        `<li data-rivela style="--i:${i}"><span class="passo-n" aria-hidden="true">${i + 1}</span><h3>${esc(v.titolo)}</h3><p>${esc(v.testo)}</p></li>`
     )
     .join("");
 
   const sedi = c.sedi.voci
     .map(
-      (s) => `<article class="sede">
+      (s, i) => `<article class="sede" data-rivela style="--i:${i}">
       <h3>${esc(s.citta)}</h3>
       <p class="sede-struttura">${esc(s.struttura)}</p>
       <p>${esc(s.indirizzo)}</p>
@@ -121,6 +144,15 @@ export function renderHome(c, { noindex = false } = {}) {
     )
     .join("");
 
+  const ig = instagram(c);
+  const parole = String(c.hero.parole ?? "")
+    .split(/[\n,]+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const giro = parole
+    .map((p) => `<span class="parola">${esc(p)}</span><svg class="tilde" viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6 C 8 0, 14 0, 20 6 S 32 12, 38 6"/></svg>`)
+    .join("");
+
   const recapiti = [
     tel ? `<li><span>Telefono</span><a href="tel:${esc(tel)}">${esc(c.contatti.telefono)}</a></li>` : "",
     wa
@@ -129,6 +161,7 @@ export function renderHome(c, { noindex = false } = {}) {
     c.contatti.email
       ? `<li><span>Email</span><a href="mailto:${esc(c.contatti.email)}">${esc(c.contatti.email)}</a></li>`
       : "",
+    ig ? `<li><span>Instagram</span><a href="${esc(ig.url)}" target="_blank" rel="noopener">${esc(ig.nome)}</a></li>` : "",
   ].join("");
 
   const jsonld = {
@@ -138,6 +171,7 @@ export function renderHome(c, { noindex = false } = {}) {
     description: c.meta.descrizione,
     ...(tel ? { telephone: tel } : {}),
     ...(c.contatti.email ? { email: c.contatti.email } : {}),
+    ...(ig ? { sameAs: [ig.url] } : {}),
     location: c.sedi.voci.map((s) => ({
       "@type": "Place",
       name: s.struttura,
@@ -154,27 +188,37 @@ ${intestazione(c)}
 <section class="hero">
   <div class="wrap hero-in">
     <div class="hero-testo">
-      <p class="sopratitolo">${esc(c.hero.sopratitolo)}</p>
-      <h1>${esc(c.hero.titolo)}</h1>
-      <p class="hero-intro">${esc(c.hero.testo)}</p>
-      <div class="azioni">
+      <p class="sopratitolo entra" style="--d:0">${esc(c.hero.sopratitolo)}</p>
+      <h1 class="entra" style="--d:1">${esc(c.hero.titolo)}</h1>
+      <p class="hero-intro entra" style="--d:2">${esc(c.hero.testo)}</p>
+      <div class="azioni entra" style="--d:3">
         <a class="bottone" href="#contatti">${esc(c.hero.bottone)}</a>
         ${wa ? `<a class="bottone bottone-secondario" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">Scrivimi su WhatsApp</a>` : ""}
       </div>
-      <p class="albo">${esc(c.profilo.albo)}</p>
+      <p class="albo entra" style="--d:4">${esc(c.profilo.albo)}</p>
     </div>
     <figure class="hero-foto">
-      <img src="${esc(c.profilo.foto)}" alt="${esc(c.profilo.nome)}" width="640" height="800" fetchpriority="high">
+      <div class="cornice"><img src="${esc(c.profilo.foto)}" alt="${esc(c.profilo.nome)}" width="640" height="800" fetchpriority="high"></div>
     </figure>
   </div>
   <svg class="orizzonte" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 34 C 180 18, 330 46, 520 32 S 860 14, 1040 30 S 1310 44, 1440 26" />
+    <g class="scorre scorre-lento"><path class="onda-eco" d="${onda(44, 7)}" /></g>
+    <g class="scorre"><path d="${onda(28, 12)}" /></g>
   </svg>
 </section>
 
+${
+  parole.length
+    ? `<section class="parole" aria-label="Temi di cui mi occupo">
+  <ul class="nascosto">${parole.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+  <div class="parole-traccia" aria-hidden="true"><div class="parole-giro">${giro}</div><div class="parole-giro copia">${giro}</div></div>
+</section>`
+    : ""
+}
+
 <section class="sezione servizi" id="servizi">
   <div class="wrap">
-    <div class="sezione-testa">
+    <div class="sezione-testa" data-rivela>
       <h2>${esc(c.servizi.titolo)}</h2>
       <p>${esc(c.servizi.intro)}</p>
     </div>
@@ -184,21 +228,36 @@ ${intestazione(c)}
 
 <section class="sezione passi">
   <div class="wrap">
-    <div class="sezione-testa"><h2>${esc(c.passi.titolo)}</h2></div>
-    <ol class="sequenza">${passi}</ol>
+    <div class="sezione-testa" data-rivela><h2>${esc(c.passi.titolo)}</h2></div>
+    <ol class="sequenza" data-rivela>${passi}</ol>
   </div>
 </section>
 
 <section class="sezione chisono" id="chi-sono">
   <div class="wrap due-col">
-    <h2>${esc(c.chisono.titolo)}</h2>
-    <div class="testo-lungo">${paragrafi(c.chisono.testo)}</div>
+    <h2 data-rivela>${esc(c.chisono.titolo)}</h2>
+    <div class="testo-lungo" data-rivela style="--i:1">${paragrafi(c.chisono.testo)}</div>
   </div>
 </section>
 
+${
+  ig
+    ? `<section class="instagram">
+  <div class="wrap instagram-in" data-rivela>
+    <h2>${esc(c.instagram.titolo)}</h2>
+    <div class="instagram-testo">
+      <p>${esc(c.instagram.testo)}</p>
+      <a class="bottone bottone-secondario" href="${esc(ig.url)}" target="_blank" rel="noopener">${icoInstagram}${esc(c.instagram.bottone)}</a>
+      <p class="ig-nome">${esc(ig.nome)}</p>
+    </div>
+  </div>
+</section>`
+    : ""
+}
+
 <section class="sezione sedi" id="sedi">
   <div class="wrap">
-    <div class="sezione-testa">
+    <div class="sezione-testa" data-rivela>
       <h2>${esc(c.sedi.titolo)}</h2>
       ${c.sedi.nota ? `<p>${esc(c.sedi.nota)}</p>` : ""}
     </div>
@@ -208,22 +267,23 @@ ${intestazione(c)}
 
 <section class="sezione domande" id="domande">
   <div class="wrap due-col">
-    <h2>${esc(c.faq.titolo)}</h2>
-    <div class="faq">${faq}</div>
+    <h2 data-rivela>${esc(c.faq.titolo)}</h2>
+    <div class="faq" data-rivela style="--i:1">${faq}</div>
   </div>
 </section>
 
 <section class="contatti" id="contatti">
   <svg class="fondale" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 40 C 200 70, 380 18, 600 36 S 980 66, 1200 34 S 1380 30, 1440 44 L1440 80 L0 80 Z" />
+    <g class="scorre scorre-inverso"><path class="strato-dietro" d="${onda(34, 12)} L2880 80 L0 80 Z" /></g>
+    <g class="scorre scorre-lento"><path d="${onda(46, 10)} L2880 80 L0 80 Z" /></g>
   </svg>
   <div class="wrap contatti-in">
-    <div class="contatti-testo">
+    <div class="contatti-testo" data-rivela>
       <h2>${esc(c.contatti.titolo)}</h2>
       <p>${esc(c.contatti.testo)}</p>
       ${recapiti ? `<ul class="recapiti">${recapiti}</ul>` : ""}
     </div>
-    <form class="modulo" id="modulo" novalidate>
+    <form class="modulo" id="modulo" novalidate data-rivela style="--i:1">
       <div class="riga">
         <label><span>Nome <span aria-hidden="true">*</span></span><input name="nome" autocomplete="given-name" required></label>
         <label><span>Cognome</span><input name="cognome" autocomplete="family-name"></label>
@@ -246,7 +306,7 @@ ${intestazione(c)}
 </main>
 ${piede(c)}
 <script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>
-<script src="/assets/site.js?v=1" defer></script>
+<script src="/assets/site.js?v=2" defer></script>
 </body>
 </html>`;
 }

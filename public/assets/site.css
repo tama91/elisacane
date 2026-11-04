@@ -136,31 +136,85 @@ p:last-child { margin-bottom: 0; }
 .azioni { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
 .albo { font-size: .9rem; color: var(--tenue); }
 
-.hero-foto { margin: 0; position: relative; z-index: 1; }
-.hero-foto img {
-  width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 20%;
-  border-radius: 4px 4px 0 0;
-  background: var(--t2);
+/* Foto ad arco, con una seconda linea d'arco che "galleggia" dietro */
+.hero-foto { margin: 0; position: relative; z-index: 1; padding: 18px 18px 0 0; }
+.hero-foto::before {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 24px; left: 18px;
+  border: 1px solid var(--lago); border-bottom: 0;
+  border-radius: 999px 999px 0 0; z-index: -1; opacity: .55;
+}
+.cornice {
+  position: relative; overflow: hidden; aspect-ratio: 4 / 5;
+  border-radius: 999px 999px 0 0; background: var(--t2);
+}
+.cornice img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+
+/* Onde che scorrono: la linea dell'orizzonte e il fondale dei contatti */
+.orizzonte {
+  display: block; width: 100%; height: 64px; margin-top: -32px;
+  position: relative; z-index: 2; overflow: hidden;
+}
+.orizzonte path { fill: none; stroke: var(--lago); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.orizzonte .onda-eco { stroke-width: 1; opacity: .4; }
+
+/* ---------- Movimento ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .scorre { animation: scorri-onda 16s linear infinite; }
+  .scorre-lento { animation-duration: 26s; }
+  .scorre-inverso { animation-duration: 22s; animation-direction: reverse; }
+  @keyframes scorri-onda { from { transform: translateX(0); } to { transform: translateX(-720px); } }
+
+  /* Ingresso dell'apertura: un'unica sequenza */
+  .entra { animation: sali .9s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--d, 0) * 110ms + 120ms); }
+  @keyframes sali { from { opacity: 0; transform: translateY(18px); } }
+  .cornice { animation: emerge 1.5s cubic-bezier(.65, 0, .2, 1) .25s both; }
+  .cornice img { animation: avvicina 2.2s cubic-bezier(.2, .7, .2, 1) .25s both; }
+  @keyframes emerge { from { clip-path: inset(100% 0 0 0 round 999px 999px 0 0); } to { clip-path: inset(0 0 0 0 round 999px 999px 0 0); } }
+  @keyframes avvicina { from { transform: scale(1.12); } }
+  .hero-foto::before { animation: fluttua 9s ease-in-out 1.6s infinite alternate; }
+  @keyframes fluttua { from { transform: translate(0, 0); } to { transform: translate(-10px, 8px); } }
+
+  /* Comparsa dei contenuti scorrendo */
+  .js [data-rivela] {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity .9s ease, transform .9s cubic-bezier(.2, .7, .2, 1);
+    transition-delay: calc(var(--i, 0) * 120ms);
+  }
+  .js [data-rivela].visibile { opacity: 1; transform: none; }
 }
 
-.orizzonte {
-  display: block; width: 100%; height: 60px; margin-top: -30px;
-  position: relative; z-index: 2;
+/* ---------- Fascia delle parole ---------- */
+.parole {
+  overflow: hidden; padding: clamp(20px, 3vw, 36px) 0;
+  border-bottom: 1px solid var(--linea);
 }
-.orizzonte path {
-  fill: none; stroke: var(--lago); stroke-width: 1.5; vector-effect: non-scaling-stroke;
-  stroke-dasharray: 1600; stroke-dashoffset: 0;
+.parole-traccia { display: flex; width: max-content; }
+.parole-giro { display: flex; align-items: center; flex: none; }
+.parola {
+  font-family: var(--serif); font-weight: 300; font-size: clamp(1.7rem, 3.6vw, 2.8rem);
+  line-height: 1.2; color: var(--lago); white-space: nowrap; padding: 0 clamp(16px, 2vw, 28px);
 }
+.tilde { width: 34px; height: 12px; flex: none; }
+.tilde path { fill: none; stroke: var(--lago); stroke-width: 1.5; opacity: .5; }
 @media (prefers-reduced-motion: no-preference) {
-  .orizzonte path { animation: traccia 2.2s cubic-bezier(.6, 0, .2, 1) .2s both; }
-  @keyframes traccia { from { stroke-dashoffset: 1600; } to { stroke-dashoffset: 0; } }
+  .parole-traccia { animation: scorri-parole 48s linear infinite; }
+  .parole:hover .parole-traccia { animation-play-state: paused; }
+  @keyframes scorri-parole { to { transform: translateX(-50%); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parole-traccia { width: auto; }
+  .parole-giro { flex-wrap: wrap; justify-content: center; row-gap: 8px; margin: 0 auto; }
+  .parole-giro.copia { display: none; }
 }
 
 /* ---------- Sezioni: la discesa ---------- */
 .sezione { padding: clamp(64px, 9vw, 120px) 0; }
 .servizi { background: linear-gradient(var(--cielo), var(--t1)); padding-top: clamp(40px, 6vw, 72px); }
+.aree li h3 { transition: color .2s; }
+.aree li:hover h3 { color: var(--lago); }
 .passi   { background: linear-gradient(var(--t1), var(--t2)); }
 .chisono { background: linear-gradient(var(--t2), var(--t3)); }
+.parole + .servizi { padding-top: clamp(56px, 8vw, 104px); }
 .sedi    { background: linear-gradient(var(--t3), var(--t4)); }
 .domande { background: linear-gradient(var(--t4), var(--t5)); padding-bottom: clamp(96px, 12vw, 160px); }
 
@@ -176,9 +230,22 @@ p:last-child { margin-bottom: 0; }
 .aree h3 { font-size: 1.6rem; margin-bottom: 10px; }
 .aree p { color: var(--tenue); max-width: 30em; }
 
-/* Come iniziare */
-.sequenza { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); }
+/* Come iniziare: una linea unisce i passaggi e si disegna quando compare */
+.sequenza { list-style: none; margin: 0; padding: 28px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); position: relative; }
+.sequenza::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--lago);
+  transform-origin: left center;
+}
 .sequenza li { position: relative; }
+.sequenza li::before {
+  content: ""; position: absolute; top: -33px; left: 0; width: 11px; height: 11px;
+  border-radius: 50%; background: var(--t1); border: 1.5px solid var(--lago);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .sequenza[data-rivela] { opacity: 1; transform: none; }
+  .js .sequenza::before { transform: scaleX(0); transition: transform 1.6s cubic-bezier(.65, 0, .2, 1); }
+  .js .sequenza.visibile::before { transform: scaleX(1); }
+}
 .passo-n {
   display: block; font-family: var(--serif); font-weight: 300;
   font-size: 4rem; line-height: 1; color: var(--lago); margin-bottom: 16px;
@@ -189,6 +256,16 @@ p:last-child { margin-bottom: 0; }
 /* Chi sono */
 .testo-lungo { font-family: var(--serif); font-size: clamp(1.2rem, 1.8vw, 1.45rem); line-height: 1.55; max-width: 32em; }
 .testo-lungo p { margin-bottom: .9em; }
+
+/* Instagram */
+.instagram { background: var(--t3); padding: clamp(48px, 7vw, 88px) 0; border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); }
+.instagram-in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: center; }
+.instagram h2 { font-size: clamp(2.2rem, 4.6vw, 3.8rem); font-weight: 300; line-height: 1.04; max-width: 9ch; }
+.instagram-testo p { color: var(--tenue); max-width: 30em; margin-bottom: 20px; }
+.instagram-testo .ig-nome { margin: 12px 0 0; font-size: .9rem; }
+.ico { width: 20px; height: 20px; margin-right: 10px; flex: none; }
+.ico rect, .ico circle { fill: none; stroke: currentColor; stroke-width: 1.6; }
+.ico .pieno { fill: currentColor; stroke: none; }
 
 /* Sedi */
 .elenco-sedi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 6vw, 88px); }
@@ -219,7 +296,9 @@ p:last-child { margin-bottom: 0; }
 /* ---------- Contatti: il fondo ---------- */
 .contatti { position: relative; background: var(--fondo); color: var(--chiaro); padding: clamp(48px, 7vw, 96px) 0 clamp(64px, 9vw, 120px); }
 .fondale { position: absolute; left: 0; right: 0; top: -79px; width: 100%; height: 80px; display: block; }
+.fondale { overflow: hidden; }
 .fondale path { fill: var(--fondo); }
+.fondale .strato-dietro { fill: var(--lago); opacity: .45; }
 .contatti-in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 6vw, 88px); }
 .contatti h2 { font-size: clamp(2.2rem, 4.2vw, 3.4rem); margin-bottom: 20px; }
 .contatti-testo > p { color: var(--chiaro-tenue); max-width: 30em; }
@@ -265,7 +344,13 @@ p:last-child { margin-bottom: 0; }
   .testata-in { justify-content: space-between; min-height: 64px; }
   .hero-in { grid-template-columns: 1fr; }
   .hero-testo { padding-bottom: 8px; }
-  .hero-foto { max-width: 420px; }
+  .hero-foto { width: min(58%, 280px); justify-self: end; margin: 8px 4px 0 0; }
+  .instagram-in { grid-template-columns: 1fr; gap: 16px; }
+  .sequenza { padding: 0 0 0 28px; gap: 32px; }
+  .sequenza::before { left: 5px; right: auto; top: 6px; bottom: 6px; width: 1px; height: auto; transform-origin: center top; }
+  .js .sequenza::before { transform: scaleY(0); }
+  .js .sequenza.visibile::before { transform: scaleY(1); }
+  .sequenza li::before { top: 6px; left: -28px; }
   .sezione-testa, .due-col, .contatti-in { grid-template-columns: 1fr; gap: 16px; }
   .due-col h2 { margin-bottom: 16px; }
   .sequenza { grid-template-columns: 1fr; }
@@ -278,5 +363,7 @@ p:last-child { margin-bottom: 0; }
   .riga { grid-template-columns: 1fr; }
   .marchio { font-size: 1.1rem; }
   .passo-n { font-size: 3rem; }
+  .hero-foto { width: 58%; }
+  .hero-intro { font-size: 1.05rem; }
   .piede p:last-child { text-align: left; }
 }

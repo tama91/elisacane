@@ -28,6 +28,7 @@ const SEZIONI = [
       { k: "telefono", label: "Telefono", aiuto: "Es. 333 123 4567" },
       { k: "whatsapp", label: "Numero WhatsApp", aiuto: "Se lo inserisci compare il bottone «Scrivimi su WhatsApp»." },
       { k: "email", label: "Email" },
+      { k: "instagram", label: "Profilo Instagram", aiuto: "Incolla l'indirizzo del profilo. Se lo lasci vuoto, il riquadro Instagram non compare." },
       { k: "titolo", label: "Titolo della sezione" },
       { k: "testo", label: "Testo accanto al modulo", tipo: "testo" },
     ],
@@ -40,6 +41,7 @@ const SEZIONI = [
       { k: "titolo", label: "Titolo principale" },
       { k: "testo", label: "Testo di presentazione", tipo: "testo" },
       { k: "bottone", label: "Testo del bottone" },
+      { k: "parole", label: "Parole che scorrono", tipo: "testo", righe: 6, aiuto: "Una per riga. Scorrono nella fascia sotto l'apertura. Lascia vuoto per nasconderla." },
     ],
   },
   {
@@ -81,6 +83,15 @@ const SEZIONI = [
       { k: "titolo", label: "Titolo della sezione" },
       { k: "voci", label: "Domande", aggiungi: "Aggiungi una domanda", tipo: "lista", nuovo: { domanda: "", risposta: "" }, etichetta: "domanda",
         campi: [ { k: "domanda", label: "Domanda" }, { k: "risposta", label: "Risposta", tipo: "testo" } ] },
+    ],
+  },
+  {
+    chiave: "instagram", titolo: "Instagram",
+    aiuto: "Il riquadro che invita a seguire il profilo. L'indirizzo del profilo si cambia in Contatti.",
+    campi: [
+      { k: "titolo", label: "Titolo" },
+      { k: "testo", label: "Testo", tipo: "testo" },
+      { k: "bottone", label: "Testo del bottone" },
     ],
   },
   {

@@ -18,6 +18,7 @@ export const DEFAULT_CONTENT = {
     testo:
       "Intraprendere un percorso psicologico significa regalarsi uno spazio dove riordinare i pensieri e ritrovare il proprio benessere. Non dovrai affrontare tutto da solo: cammineremo insieme, passo dopo passo, per trasformare le difficoltà in consapevolezza e in un nuovo equilibrio.",
     bottone: "Richiedi un primo colloquio",
+    parole: "Ansia\nStress\nUmore\nRelazioni\nConsapevolezza\nAscolto\nEquilibrio\nCrescita personale",
   },
   servizi: {
     titolo: "Di cosa mi occupo",
@@ -113,6 +114,12 @@ export const DEFAULT_CONTENT = {
     telefono: "",
     whatsapp: "",
     email: "",
+    instagram: "https://www.instagram.com/leparole_della_mente/",
+  },
+  instagram: {
+    titolo: "Le parole della mente",
+    testo: "Sul mio profilo Instagram condivido brevi riflessioni su emozioni, relazioni e benessere psicologico.",
+    bottone: "Seguimi su Instagram",
   },
   footer: {
     piva: "",

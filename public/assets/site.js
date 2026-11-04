@@ -54,3 +54,17 @@ if (modulo) {
     }
   });
 }
+
+// Comparsa dei contenuti quando entrano nello schermo
+const daRivelare = document.querySelectorAll("[data-rivela]");
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver(
+    (voci) => voci.forEach((v) => {
+      if (v.isIntersecting) { v.target.classList.add("visibile"); io.unobserve(v.target); }
+    }),
+    { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+  );
+  daRivelare.forEach((el) => io.observe(el));
+} else {
+  daRivelare.forEach((el) => el.classList.add("visibile"));
+}
