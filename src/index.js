@@ -16,6 +16,11 @@ const DURATA_RICHIESTE = 60 * 60 * 24 * 180; // 180 giorni
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // www.elisacanepsicologa.it -> elisacanepsicologa.it
+    if (url.hostname.startsWith("www.")) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
     const path = url.pathname;
     // Lo staging su tamabase.app non deve finire su Google
     const noindex = url.hostname.endsWith("tamabase.app") || url.hostname.endsWith("workers.dev");
