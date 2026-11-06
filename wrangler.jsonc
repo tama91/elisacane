@@ -4,7 +4,9 @@
   "compatibility_date": "2026-10-20",
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Ogni richiesta passa dal Worker: aggiunge gli header di sicurezza e i reindirizzamenti
+    "run_worker_first": true
   },
   "kv_namespaces": [
     { "binding": "CONTENT", "id": "06b5143b0c0d4d9b8dbbf5992ceba9a4" }
@@ -16,5 +18,8 @@
   ],
   // Non cancellare le variabili impostate dal pannello Cloudflare a ogni deploy
   "keep_vars": true,
+  // Il sito risponde solo sui domini indicati sopra (niente indirizzi *.workers.dev)
+  "workers_dev": false,
+  "preview_urls": false,
   "observability": { "enabled": true }
 }

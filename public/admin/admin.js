@@ -121,7 +121,7 @@ let richieste = [];
 // ---------- Avvio ----------
 
 async function avvia() {
-  const r = await fetch("/api/sessione");
+  const r = await fetch("/admin/api/sessione");
   if (r.ok) return apriPannello();
   $("#accesso").hidden = false;
   $("#form-accesso input").focus();
@@ -131,7 +131,7 @@ $("#form-accesso").addEventListener("submit", async (e) => {
   e.preventDefault();
   const msg = $("#form-accesso .msg");
   msg.textContent = "";
-  const r = await fetch("/api/login", {
+  const r = await fetch("/admin/api/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ password: e.target.password.value }),
@@ -147,7 +147,7 @@ $("#form-accesso").addEventListener("submit", async (e) => {
 });
 
 async function apriPannello() {
-  const [c, q] = await Promise.all([fetch("/api/contenuti"), fetch("/api/richieste")]);
+  const [c, q] = await Promise.all([fetch("/admin/api/contenuti"), fetch("/admin/api/richieste")]);
   dati = await c.json();
   richieste = q.ok ? await q.json() : [];
   $("#app").hidden = false;
@@ -157,7 +157,7 @@ async function apriPannello() {
 
 $("#esci").addEventListener("click", async () => {
   if (modificato && !confirm("Hai modifiche non salvate. Uscire comunque?")) return;
-  await fetch("/api/logout", { method: "POST" });
+  await fetch("/admin/api/logout", { method: "POST" });
   location.reload();
 });
 
@@ -171,7 +171,7 @@ async function salva() {
   const btn = $("#salva");
   btn.disabled = true;
   stato("Salvataggio…");
-  const r = await fetch("/api/contenuti", {
+  const r = await fetch("/admin/api/contenuti", {
     method: "PUT",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(dati),
@@ -340,7 +340,7 @@ function foto(def, oggetto) {
     stato("Carico la foto…");
     try {
       const blob = await ridimensiona(file, 1400);
-      const r = await fetch("/api/foto", { method: "POST", headers: { "content-type": "image/jpeg" }, body: blob });
+      const r = await fetch("/admin/api/foto", { method: "POST", headers: { "content-type": "image/jpeg" }, body: blob });
       const j = await r.json();
       if (!r.ok) throw new Error(j.errore);
       oggetto[def.k] = j.url;
@@ -393,7 +393,7 @@ function disegnaRichieste(ed) {
       <p>${escape(r.motivo)}</p>`;
     const del = bottone("Elimina", async () => {
       if (!confirm("Eliminare questa richiesta? Non si potrà recuperare.")) return;
-      const res = await fetch("/api/richieste/" + encodeURIComponent(r.id), { method: "DELETE" });
+      const res = await fetch("/admin/api/richieste/" + encodeURIComponent(r.id), { method: "DELETE" });
       if (res.ok) { richieste = richieste.filter((x) => x.id !== r.id); disegnaMenu(); disegnaEditor(); }
     });
     del.classList.add("btn-pericolo");

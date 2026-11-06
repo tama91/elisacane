@@ -50,6 +50,8 @@ function instagram(c) {
 const icoInstagram = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" class="pieno"/></svg>`;
 
 function testa(c, { titolo, descrizione, path, noindex }) {
+  const f = String(c.profilo.foto || "");
+  const foto = f.startsWith("/") ? "https://elisacanepsicologa.it" + f.split("?")[0] : f.startsWith("https://") ? f : "";
   return `<!doctype html>
 <html lang="it">
 <head>
@@ -58,6 +60,9 @@ function testa(c, { titolo, descrizione, path, noindex }) {
 <title>${esc(titolo)}</title>
 <meta name="description" content="${esc(descrizione)}">
 ${noindex ? '<meta name="robots" content="noindex, nofollow">' : ""}
+<link rel="canonical" href="https://elisacanepsicologa.it${esc(path || "/")}">
+<meta property="og:url" content="https://elisacanepsicologa.it${esc(path || "/")}">
+${foto ? `<meta property="og:image" content="${esc(foto)}">` : ""}
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(titolo)}">
 <meta property="og:description" content="${esc(descrizione)}">
@@ -179,7 +184,7 @@ export function renderHome(c, { noindex = false } = {}) {
     })),
   };
 
-  return `${testa(c, { titolo: c.meta.titolo, descrizione: c.meta.descrizione, noindex })}
+  return `${testa(c, { titolo: c.meta.titolo, descrizione: c.meta.descrizione, path: "/", noindex })}
 <body>
 <a class="salta" href="#contenuto">Vai al contenuto</a>
 ${intestazione(c)}
@@ -331,7 +336,7 @@ function testoRicco(testo) {
 }
 
 export function renderPrivacy(c, { noindex = false } = {}) {
-  return `${testa(c, { titolo: "Privacy – " + c.profilo.nome, descrizione: "Informativa privacy", noindex })}
+  return `${testa(c, { titolo: "Privacy – " + c.profilo.nome, descrizione: "Informativa privacy", path: "/privacy", noindex })}
 <body class="pagina-semplice">
 ${intestazione(c, false)}
 <main class="wrap testo-pagina">
