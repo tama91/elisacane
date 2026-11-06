@@ -235,14 +235,17 @@ async function riceviContatto(request, env, url) {
   await env.CONTENT.put(chiave, String(invii + 1), { expirationTtl: 3600 });
 
   // Avviso via email (facoltativo): senza il motivo, per riservatezza
-  if (env.RESEND_API_KEY && env.NOTIFY_EMAIL) {
+  const chiaveResend = String(env.RESEND_API_KEY || "").trim();
+  const destinatario = String(env.NOTIFY_EMAIL || "").trim();
+  const mittente = String(env.FROM_EMAIL || "").trim();
+  if (chiaveResend && destinatario) {
     const unaRiga = (s) => s.replace(/[\r\n]+/g, " ");
     await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+      headers: { authorization: `Bearer ${chiaveResend}`, "content-type": "application/json" },
       body: JSON.stringify({
-        from: env.FROM_EMAIL || "Sito <onboarding@resend.dev>",
-        to: env.NOTIFY_EMAIL,
+        from: mittente || "Sito <onboarding@resend.dev>",
+        to: destinatario,
         subject: `Nuova richiesta di contatto da ${unaRiga(r.nome)}`,
         text: `Hai ricevuto una nuova richiesta dal sito.\n\nNome: ${unaRiga(r.nome)} ${unaRiga(r.cognome)}\nTelefono: ${unaRiga(r.telefono)}\n\nLeggi il messaggio completo nell'area riservata: ${url.origin}/admin/`,
       }),
