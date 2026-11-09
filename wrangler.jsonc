@@ -12,7 +12,6 @@
     { "binding": "CONTENT", "id": "06b5143b0c0d4d9b8dbbf5992ceba9a4" }
   ],
   "routes": [
-    { "pattern": "elisacane.tamabase.app", "custom_domain": true },
     { "pattern": "elisacanepsicologa.it", "custom_domain": true },
     { "pattern": "www.elisacanepsicologa.it", "custom_domain": true }
   ],
