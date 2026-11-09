@@ -123,8 +123,13 @@ p:last-child { margin-bottom: 0; }
   gap: clamp(32px, 6vw, 88px); align-items: end;
 }
 .hero-testo { padding-bottom: clamp(48px, 7vw, 96px); }
-.sopratitolo { color: var(--tenue); font-size: 1rem; margin-bottom: 20px; }
-.hero h1 {
+.hero .sopratitolo {
+  font-family: var(--sans); font-weight: 400; font-size: 1rem; line-height: 1.5;
+  letter-spacing: 0; color: var(--tenue); margin: 0 0 20px;
+}
+.hero-titolo {
+  font-family: var(--serif);
+  font-optical-sizing: auto;
   font-size: clamp(2.6rem, 6.2vw, 5rem);
   font-weight: 330;
   line-height: 1.02;

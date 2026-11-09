@@ -72,7 +72,7 @@ ${foto ? `<meta property="og:image" content="${esc(foto)}">` : ""}
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/site.css?v=4">
 </head>`;
 }
 
@@ -105,6 +105,95 @@ function piede(c) {
     <p>${ig ? `<a href="${esc(ig.url)}" target="_blank" rel="noopener">Instagram</a><br>` : ""}<a href="/privacy">Privacy</a><br>© ${anno}</p>
   </div>
 </footer>`;
+}
+
+// ---------- Dati strutturati per Google (schema.org) ----------
+
+const SITO = "https://elisacanepsicologa.it";
+const GIORNI = [
+  ["luned", "Monday"], ["marted", "Tuesday"], ["mercol", "Wednesday"], ["gioved", "Thursday"],
+  ["venerd", "Friday"], ["sabat", "Saturday"], ["domeni", "Sunday"],
+];
+
+// "Via Roma 7/C, 37014 Castelnuovo del Garda (VR)" -> PostalAddress
+function indirizzoStrutturato(testo) {
+  const t = String(testo || "");
+  const cap = t.match(/\b(\d{5})\b/);
+  const prov = t.match(/\(([A-Z]{2})\)/);
+  const [via, ...resto] = t.split(",");
+  const citta = resto.join(",").replace(/\b\d{5}\b/, "").replace(/\([A-Z]{2}\)/, "").trim();
+  return {
+    "@type": "PostalAddress",
+    streetAddress: via.trim(),
+    ...(cap ? { postalCode: cap[1] } : {}),
+    ...(citta ? { addressLocality: citta } : {}),
+    ...(prov ? { addressRegion: prov[1] } : {}),
+    addressCountry: "IT",
+  };
+}
+
+// "Lunedì e mercoledì" / "Lunedì – venerdì" + "9:00 – 13:00, 15:00 – 19:00" -> OpeningHoursSpecification
+function orariStrutturati(orari) {
+  const out = [];
+  for (const o of orari || []) {
+    const g = String(o.giorni || "").toLowerCase();
+    const trovati = GIORNI.filter(([k]) => g.includes(k)).map(([, en]) => en);
+    let giorni = trovati;
+    const intervallo = g.match(/(luned|marted|mercol|gioved|venerd|sabat|domeni)\S*\s*(?:–|-|al)\s*(luned|marted|mercol|gioved|venerd|sabat|domeni)/);
+    if (intervallo) {
+      const i = GIORNI.findIndex(([k]) => k === intervallo[1]);
+      const j = GIORNI.findIndex(([k]) => k === intervallo[2]);
+      if (i >= 0 && j >= i) giorni = GIORNI.slice(i, j + 1).map(([, en]) => en);
+    }
+    const ore = [...String(o.ore || "").matchAll(/(\d{1,2})[:.](\d{2})/g)].map((m) => m[1].padStart(2, "0") + ":" + m[2]);
+    if (!giorni.length || ore.length < 2) continue;
+    for (let k = 0; k + 1 < ore.length; k += 2) {
+      out.push({ "@type": "OpeningHoursSpecification", dayOfWeek: giorni, opens: ore[k], closes: ore[k + 1] });
+    }
+  }
+  return out;
+}
+
+function datiStrutturati(c, { tel, ig }) {
+  const foto = String(c.profilo.foto || "").startsWith("/") ? SITO + c.profilo.foto.split("?")[0] : c.profilo.foto;
+  const persona = {
+    "@type": "Person",
+    "@id": SITO + "/#elisa",
+    name: c.profilo.nome.replace(/^Dott\.?ssa\s+/i, ""),
+    honorificPrefix: "Dott.ssa",
+    jobTitle: c.profilo.professione,
+    description: c.meta.descrizione,
+    url: SITO + "/",
+    ...(foto ? { image: foto } : {}),
+    ...(tel ? { telephone: tel } : {}),
+    ...(c.contatti.email ? { email: c.contatti.email } : {}),
+    ...(ig ? { sameAs: [ig.url] } : {}),
+    knowsAbout: c.servizi.voci.map((v) => v.titolo),
+    memberOf: { "@type": "Organization", name: "Ordine degli Psicologi del Veneto" },
+  };
+  const studi = c.sedi.voci.map((s, i) => {
+    const orari = orariStrutturati(s.orari);
+    return {
+      "@type": "MedicalBusiness",
+      "@id": `${SITO}/#sede-${i + 1}`,
+      name: `${c.profilo.nome} – ${c.profilo.professione} a ${s.citta}`,
+      url: SITO + "/",
+      ...(foto ? { image: foto } : {}),
+      ...(tel ? { telephone: tel } : {}),
+      address: indirizzoStrutturato(s.indirizzo),
+      ...(orari.length ? { openingHoursSpecification: orari } : {}),
+      employee: { "@id": SITO + "/#elisa" },
+      ...(s.struttura ? { containedInPlace: { "@type": "Place", name: s.struttura } } : {}),
+    };
+  });
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": SITO + "/#sito", url: SITO + "/", name: c.profilo.nome, inLanguage: "it-IT" },
+      persona,
+      ...studi,
+    ],
+  };
 }
 
 export function renderHome(c, { noindex = false } = {}) {
@@ -169,20 +258,7 @@ export function renderHome(c, { noindex = false } = {}) {
     ig ? `<li><span>Instagram</span><a href="${esc(ig.url)}" target="_blank" rel="noopener">${esc(ig.nome)}</a></li>` : "",
   ].join("");
 
-  const jsonld = {
-    "@context": "https://schema.org",
-    "@type": "MedicalBusiness",
-    name: c.profilo.nome,
-    description: c.meta.descrizione,
-    ...(tel ? { telephone: tel } : {}),
-    ...(c.contatti.email ? { email: c.contatti.email } : {}),
-    ...(ig ? { sameAs: [ig.url] } : {}),
-    location: c.sedi.voci.map((s) => ({
-      "@type": "Place",
-      name: s.struttura,
-      address: s.indirizzo,
-    })),
-  };
+  const jsonld = datiStrutturati(c, { tel, ig });
 
   return `${testa(c, { titolo: c.meta.titolo, descrizione: c.meta.descrizione, path: "/", noindex })}
 <body>
@@ -193,8 +269,8 @@ ${intestazione(c)}
 <section class="hero">
   <div class="wrap hero-in">
     <div class="hero-testo">
-      <p class="sopratitolo entra" style="--d:0">${esc(c.hero.sopratitolo)}</p>
-      <h1 class="entra" style="--d:1">${esc(c.hero.titolo)}</h1>
+      <h1 class="sopratitolo entra" style="--d:0">${esc(c.hero.sopratitolo)}</h1>
+      <p class="hero-titolo entra" style="--d:1">${esc(c.hero.titolo)}</p>
       <p class="hero-intro entra" style="--d:2">${esc(c.hero.testo)}</p>
       <div class="azioni entra" style="--d:3">
         <a class="bottone" href="#contatti">${esc(c.hero.bottone)}</a>
@@ -203,7 +279,7 @@ ${intestazione(c)}
       <p class="albo entra" style="--d:4">${esc(c.profilo.albo)}</p>
     </div>
     <figure class="hero-foto">
-      <div class="cornice"><img src="${esc(c.profilo.foto)}" alt="${esc(c.profilo.nome)}" width="640" height="800" fetchpriority="high"></div>
+      <div class="cornice"><img src="${esc(c.profilo.foto)}" alt="${esc(c.profilo.nome)}, ${esc(c.profilo.professione.toLowerCase())}" width="640" height="800" fetchpriority="high"></div>
     </figure>
   </div>
   <svg class="orizzonte" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">

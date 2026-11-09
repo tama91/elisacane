@@ -78,7 +78,13 @@ async function gestisci(request, env, url) {
   if (path.startsWith("/admin/api/")) return apiAdmin(request, env, path.slice("/admin/api".length), locale);
 
   // Tutto il resto: file statici (stile, script, font, pannello)
-  return env.ASSETS.fetch(request);
+  const file = await env.ASSETS.fetch(request);
+  if (file.status === 404 && m === "GET" && !path.startsWith("/admin") && !/\.[a-z0-9]{2,5}$/i.test(path)) {
+    // Vecchie pagine del WordPress: chi arriva da un vecchio link finisce sulla pagina giusta
+    const dest = /privacy|cookie/i.test(path) ? "/privacy" : "/";
+    return Response.redirect(url.origin + dest, 301);
+  }
+  return file;
 }
 
 // ---------- Contenuti ----------
